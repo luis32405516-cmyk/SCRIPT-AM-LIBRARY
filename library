@@ -1,0 +1,103 @@
+local RainbowUI={}RainbowUI.__index=RainbowUI
+local function rc(satSpd,sat,val)
+ sat=sat or 1;val=val or 1
+ return Color3.fromHSV((tick()*satSpd)%1,sat,val)
+end
+function RainbowUI:CreateWindow(w,h)
+ w,h=w or 230,h or 120
+ local sg=Instance.new("ScreenGui")
+ sg.Name="RainbowUI";sg.ResetOnSpawn=false;sg.IgnoreGuiInset=true
+ if syn and syn.protect_gui then syn.protect_gui(sg) end
+ sg.Parent=game:GetService("Players").LocalPlayer.PlayerGui
+ local f=Instance.new("Frame")
+ f.Name="MainFrame";f.Size=UDim2.new(0,w,0,h);f.Position=UDim2.fromOffset(160,180)
+ f.BackgroundTransparency=1;f.Parent=sg
+ local borders={}
+ for _,side in ipairs({"Top","Bottom","Left","Right"}) do
+  local b=Instance.new("Frame");b.Parent=f;b.Name=side;b.BorderSizePixel=0;b.ZIndex=3
+  if side=="Top" then b.Size, b.Position = UDim2.new(1,0,0,2), UDim2.new(0,0,0,-2)
+  elseif side=="Bottom" then b.Size, b.Position = UDim2.new(1,0,0,2), UDim2.new(0,0,1,0)
+  elseif side=="Left" then b.Size, b.Position = UDim2.new(0,2,1,0), UDim2.new(0,-2,0,0)
+  else b.Size, b.Position = UDim2.new(0,2,1,0), UDim2.new(1,0,0,0) end
+  b.BackgroundColor3=Color3.fromRGB(255,0,0)
+  table.insert(borders,b)
+ end
+ local bg=Instance.new("Frame");bg.Name="BG";bg.BackgroundColor3=Color3.fromRGB(12,13,21)
+ bg.BorderSizePixel=0;bg.Size=UDim2.new(1,0,1,0);bg.Position=UDim2.new(0,0,0,0);bg.ZIndex=1;bg.Parent=f
+ local bar=Instance.new("Frame");bar.Name="Bar";bar.BackgroundColor3=Color3.fromRGB(20,20,32)
+ bar.Size=UDim2.new(1,0,0,26);bar.BorderSizePixel=0;bar.Parent=bg;bar.ZIndex=2
+ local floatBtn=Instance.new("TextButton");floatBtn.Name="FloatBtn";floatBtn.Text="ðŸ˜ˆ"
+ floatBtn.Size=UDim2.new(0,36,0,36);floatBtn.Position=UDim2.new(0,12,0,60)
+ floatBtn.BackgroundColor3=Color3.fromRGB(45,0,55);floatBtn.Visible=false;floatBtn.BorderSizePixel=0
+ floatBtn.TextSize=24;floatBtn.Font=Enum.Font.GothamBold;floatBtn.TextColor3=Color3.fromRGB(255,180,255)
+ floatBtn.Parent=sg;floatBtn.ZIndex=6
+ local title=Instance.new("TextLabel");title.Name="Title";title.Size=UDim2.new(1,-60,1,0)
+ title.Position=UDim2.new(0,28,0,0);title.BackgroundTransparency=1;title.Text="SCRIPTðŸ˜ˆLUIS"
+ title.Font=Enum.Font.GothamBold;title.TextSize=19;title.TextStrokeTransparency=0.8
+ title.TextColor3=Color3.fromRGB(255,255,255);title.TextXAlignment=Enum.TextXAlignment.Left
+ title.Parent=bar;title.ZIndex=3
+ local hideBtn=Instance.new("TextButton");hideBtn.Name="HideBtn";hideBtn.Text="âœ–"
+ hideBtn.Size=UDim2.new(0,22,0,22);hideBtn.AnchorPoint=Vector2.new(1,0.5)
+ hideBtn.Position=UDim2.new(1,-8,0.5,0);hideBtn.BackgroundColor3=Color3.fromRGB(42,0,20)
+ hideBtn.BorderSizePixel=0;hideBtn.TextSize=14;hideBtn.Font=Enum.Font.GothamBold
+ hideBtn.TextColor3=Color3.fromRGB(255,100,100);hideBtn.Parent=bar;hideBtn.ZIndex=4;hideBtn.AutoButtonColor=true
+ local scroll=Instance.new("ScrollingFrame");scroll.Name="Options";scroll.Size=UDim2.new(1,-12,1,-34)
+ scroll.Position=UDim2.new(0,6,0,28);scroll.BackgroundColor3=Color3.fromRGB(24,24,36)
+ scroll.BackgroundTransparency=0.02;scroll.BorderSizePixel=0;scroll.ScrollBarThickness=5
+ scroll.ScrollingDirection=Enum.ScrollingDirection.Y;scroll.CanvasSize=UDim2.new(0,0,0,0)
+ scroll.AutomaticCanvasSize=Enum.AutomaticSize.Y;scroll.ZIndex=2;scroll.Parent=bg
+ local uiList=Instance.new("UIListLayout");uiList.Parent=scroll;uiList.SortOrder=Enum.SortOrder.LayoutOrder
+ uiList.Padding=UDim.new(0,4)
+ game:GetService("RunService").RenderStepped:Connect(function()
+  for i,rf in ipairs(borders) do rf.BackgroundColor3 = rc(0.39 + (i*0.07),1,1) end
+ end)
+ local dragging,dragInput,dragStart,startPos
+ title.InputBegan:Connect(function(inp)
+  if inp.UserInputType==Enum.UserInputType.MouseButton1 then
+   dragging=true;dragStart=inp.Position;startPos=f.Position
+   inp.Changed:Connect(function() if inp.UserInputState==Enum.UserInputState.End then dragging=false end end)
+  end
+ end)
+ title.InputChanged:Connect(function(inp) if inp.UserInputType==Enum.UserInputType.MouseMovement then dragInput=inp end end)
+ game:GetService("UserInputService").InputChanged:Connect(function(inp)
+  if dragging and inp==dragInput then
+   local delta=inp.Position-dragStart
+   f.Position = UDim2.new(0, math.clamp(startPos.X.Offset + delta.X, 0, game:GetService("Workspace").CurrentCamera.ViewportSize.X - f.Size.X.Offset), 0, math.clamp(startPos.Y.Offset + delta.Y, 0, game:GetService("Workspace").CurrentCamera.CurrentCamera.ViewportSize.Y - f.Size.Y.Offset))
+  end
+ end)
+ hideBtn.MouseButton1Click:Connect(function() f.Visible=false;floatBtn.Visible=true;floatBtn.Position=UDim2.new(0,f.Position.X.Offset,0,f.Position.Y.Offset) end)
+ floatBtn.MouseButton1Click:Connect(function() f.Visible=true;floatBtn.Visible=false end)
+ local api=setmetatable({ _sg=sg, _hud=f, _scroll=scroll, _window=f },RainbowUI)
+ return api
+end
+function RainbowUI:AddButton(t,c)
+ local b=Instance.new("TextButton");b.Text="  "..(t or "BotÃ³n");b.Size=UDim2.new(1,-8,0,23)
+ b.BackgroundColor3=Color3.fromRGB(32,32,50);b.BorderSizePixel=0;b.Font=Enum.Font.GothamSemibold
+ b.TextSize=14;b.TextColor3=Color3.fromRGB(210,210,255);b.AutoButtonColor=true;b.ZIndex=4
+ b.Parent=self._scroll
+ b.MouseButton1Click:Connect(function() if c then pcall(c) end end)
+ return b
+end
+function RainbowUI:Destroy() if self._sg then self._sg:Destroy() end end
+function RainbowUI:Notify(txt,dur)
+ dur=dur or 2
+ local sg=self._sg or game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("RainbowUI")
+ if not sg then return end
+ local n=Instance.new("TextLabel");n.Text=tostring(txt);n.Size=UDim2.new(0,280,0,32)
+ n.AnchorPoint=Vector2.new(0.5,0);n.Position=UDim2.new(0.5,0,0,34)
+ n.BackgroundColor3=Color3.fromRGB(35,35,45);n.BorderSizePixel=0;n.Font=Enum.Font.GothamSemibold
+ n.TextSize=16;n.TextColor3=Color3.new(1,1,1);n.TextStrokeTransparency=0.7;n.Parent=sg;n.ZIndex=999
+ n.BackgroundTransparency=0.18;n.TextTransparency=0;n.TextStrokeColor3=Color3.fromRGB(0,0,0);n.ClipsDescendants=true
+ local border=Instance.new("Frame");border.Parent=n;border.Size=UDim2.new(1,0,0,3);border.Position=UDim2.new(0,0,0,0)
+ border.BackgroundColor3=Color3.fromHSV((tick()*0.47)%1,1,1);border.BorderSizePixel=0;border.ZIndex=n.ZIndex+1
+ local rs=game:GetService("RunService");local conn
+ conn = rs.RenderStepped:Connect(function() if border.Parent then border.BackgroundColor3=Color3.fromHSV((tick()*0.47)%1,1,1) else conn:Disconnect() end end)
+ spawn(function()
+  wait(dur)
+  for i=1,8 do
+   n.TextTransparency=i*0.1;n.BackgroundTransparency=0.18 + i*0.09;border.BackgroundTransparency=i*0.12;wait(0.03)
+  end
+  n:Destroy()
+ end)
+end
+return RainbowUI
