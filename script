@@ -1,4 +1,4 @@
-local R=loadstring(game:HttpGet("https://raw.githubusercontent.com/luiscj13072007-cloud/Library/refs/heads/main/library.lua"))()
+local R=loadstring(game:HttpGet("https://raw.githubusercontent.com/luis32405516-cmyk/SCRIPT-AM-LIBRARY/refs/heads/main/library"))()
 local hud=R:CreateWindow()
 local RS=game:GetService("RunService")
 local Players=game:GetService("Players")
