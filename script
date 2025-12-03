@@ -1,0 +1,133 @@
+local R=loadstring(game:HttpGet("https://raw.githubusercontent.com/luiscj13072007-cloud/Library/refs/heads/main/library.lua"))()
+local hud=R:CreateWindow()
+local RS=game:GetService("RunService")
+local Players=game:GetService("Players")
+local LP=Players.LocalPlayer
+local t=false; local o=nil; local n=false; local er=false
+local I=0.1
+local multi=false; local multiCancel=false; local MI=0.4; local multiNo=false; local multiErr=false
+local multiSlots={"RevealPickupsSteveEagle","RevealPickupsSteveGecko","RevealPickupsSteveMantisShrimp","RevealPickupsSteveSnowLeopard"}
+local sT=false; local sCancel=false; local SI=0.4; local sNo=false; local sErr=false
+local stickerPaths={ "Stickers.Cheetah.CheckpointNoSticker00A","ActiveStickers.d6001","Stickers.Cheetah.CheckpointNoSticker01A","Stickers.Cheetah.CheckpointNoSticker01B","ActiveStickers.d6002","Stickers.Cheetah.CheckpointNoSticker02A","ActiveStickers.d6003","ActiveStickers.d6004","ActiveStickers.d6005","ActiveStickers.d6006","Stickers.SnowLeopard.CheckpointNoSticker06A","Stickers.SnowLeopard.CheckpointNoSticker06B","ActiveStickers.d6007","Stickers.SnowLeopard.CheckpointNoSticker07A","ActiveStickers.d6008","Stickers.SnowLeopard.CheckpointNoSticker08A","ActiveStickers.d6009","Stickers.SnowLeopard.CheckpointNoSticker09A","ActiveStickers.d6010","ActiveStickers.d6011","ActiveStickers.d6012","Stickers.Eagle.CheckpointNoSticker12A","Stickers.Eagle.CheckpointNoSticker12A","Stickers.Eagle.CheckpointNoSticker12B","ActiveStickers.d6013","Stickers.Eagle.CheckpointNoSticker13A","Stickers.Eagle.CheckpointNoSticker14A","ActiveStickers.d6014","ActiveStickers.d6015" }
+local platform=nil; local pfConn=nil; local pManual=false; local pForce=false
+local P_SIZE=Vector3.new(6,1,6); local P_TR=0.35; local P_COL=Color3.fromRGB(30,144,255); local pYOffset=0.1
+local function destroyPlatform()
+ if pfConn then pcall(function() pfConn:Disconnect() end); pfConn=nil end
+ if platform and platform.Parent then pcall(function() platform:Destroy() end) end
+ platform=nil
+ if hud and hud.Notify then hud:Notify("Plataforma desactivada") end
+end
+local function createPlatform()
+ if pForce then return end
+ if platform and platform.Parent then return end
+ local char=LP and LP.Character if not char then return end
+ local hrp=char:FindFirstChild("HumanoidRootPart") if not hrp then return end
+ local p=Instance.new("Part") p.Name="TeleportPlatform_"..tostring(LP and LP.UserId or "Local")
+ p.Size=P_SIZE; p.Anchored=true; p.CanCollide=true; p.Transparency=P_TR; p.Material=Enum.Material.SmoothPlastic
+ p.Color=P_COL; p.TopSurface=Enum.SurfaceType.Smooth; p.BottomSurface=Enum.SurfaceType.Smooth; p.Parent=workspace
+ local hrpY=(hrp.Size and hrp.Size.Y) or 2; local yof=(hrpY/2)+(p.Size.Y/2)+0.1; pYOffset=yof; p.CFrame=CFrame.new(hrp.Position - Vector3.new(0,yof,0))
+ platform=p
+ pfConn = RS.Heartbeat:Connect(function()
+  if not LP or not LP.Character then destroyPlatform(); return end
+  local cur=LP.Character:FindFirstChild("HumanoidRootPart")
+  if not cur then destroyPlatform(); return end
+  local currentY = platform and platform.Parent and platform.Position.Y or (cur.Position.Y - pYOffset)
+  platform.CFrame = CFrame.new(Vector3.new(cur.Position.X,currentY,cur.Position.Z))
+ end)
+ if hud and hud.Notify then hud:Notify("Plataforma activada") end
+end
+local function updatePlatform()
+ if pForce then if platform and platform.Parent then pcall(destroyPlatform) end return end
+ if t or multi or sT or pManual then if not platform or not platform.Parent then pcall(createPlatform) end else if platform and platform.Parent then pcall(destroyPlatform) end end
+end
+if LP then LP.CharacterAdded:Connect(function() wait(0.1) if platform and platform.Parent then pcall(destroyPlatform); wait(0.05); pcall(function() if not pForce then createPlatform() end end) end end) end
+local function ensurePlatform()
+ if not platform or not platform.Parent then return end
+ local char=LP and LP.Character if not char then return end
+ local hrp=char:FindFirstChild("HumanoidRootPart") if not hrp then return end
+ local yof = pYOffset or (((hrp.Size and hrp.Size.Y) or 2)/2 + (platform.Size.Y/2) + 0.1)
+ platform.CFrame = CFrame.new(hrp.Position - Vector3.new(0,yof,0))
+end
+function doWinTeleport()
+ local player=LP
+ local ok,dest = pcall(function() return game.Workspace.Utility.Teleporters.Portal_to_Wc.Portal["Canvas Clouds"]:FindFirstChild("Cylinder") end)
+ if ok and dest then pcall(function() if player and player.Character and player.Character.PrimaryPart then player.Character:SetPrimaryPartCFrame(dest.CFrame); pcall(ensurePlatform); if hud and hud.Notify then hud:Notify("Teletransportado a GANAR") end end) else if hud and hud.Notify then hud:Notify("Destino GANAR no encontrado") end end
+end
+local function tpToInst(i)
+ if not i then return false end
+ local cf=nil
+ if i:IsA("BasePart") then cf=i.CFrame elseif i:IsA("Model") and i.PrimaryPart then cf=i.PrimaryPart.CFrame end
+ if cf then local suc,err=pcall(function() local p=LP if p and p.Character and p.Character.PrimaryPart then p.Character:SetPrimaryPartCFrame(cf); pcall(ensurePlatform) end end) if not suc then return false end return true end
+ return false
+end
+local function tpToObj(name)
+ if not name then return false end
+ local pf=game.Workspace:FindFirstChild("Pickups") if not pf then return false end
+ local obj=pf:FindFirstChild(name) if not obj then return false end
+ if obj:IsA("Model") and obj.PrimaryPart then return tpToInst(obj.PrimaryPart) else return tpToInst(obj) end
+end
+local function startLoop()
+ spawn(function()
+  while t do
+   local found = tpToObj(o)
+   if found then if hud and hud.Notify then hud:Notify("Objeto encontrado (auto-win desactivado). Usa el botÃ³n GANAR para teletransportarte.") end if n then n=false end else if not n and hud and hud.Notify then hud:Notify("No hay objetos"); n=true end end
+   wait(I)
+  end
+  updatePlatform()
+ end)
+end
+local function toggleTeleporting(name) if t then t=false; o=nil; if hud and hud.Notify then hud:Notify("OpciÃ³n desactivada") end; n=false; er=false else o=name; t=true; startLoop(); if hud and hud.Notify then hud:Notify("BÃºsqueda activada (auto-win eliminado; usa el botÃ³n GANAR para teletransportarte manualmente)") end end updatePlatform() end
+local function gatherMulti()
+ local out={}; local root=workspace:FindFirstChild("PickupSlots") if not root then return out end
+ for _,sn in ipairs(multiSlots) do local slot=root:FindFirstChild(sn) if slot then local d=slot:FindFirstChild("Default") if d then table.insert(out,d) end end end
+ return out
+end
+local function startMultiOnce()
+ spawn(function()
+  local targets=gatherMulti()
+  if #targets==0 then if not multiNo and hud and hud.Notify then hud:Notify("No hay pickups disponibles enPickupSlots"); multiNo=true end multi=false if hud and hud.Notify then hud:Notify("Ciclo de pickups finalizado (sin targets)") end updatePlatform(); return else if multiNo then multiNo=false end end
+  for i=1,#targets do local target=targets[i]; local ok=false; local suc,er=pcall(function() ok=tpToInst(target) end)
+   if (not suc) or (suc and ok==false) then if not multiErr and hud and hud.Notify then hud:Notify("Error o pickup no vÃ¡lido en Ã­ndice "..tostring(i)); multiErr=true end else if hud and hud.Notify then hud:Notify("Teletransportado a pickup ("..tostring(i).."): "..tostring(target.Name or "Pickup")) end if multiErr then multiErr=false end end
+   wait(MI)
+  end
+  multi=false; multiCancel=false
+  if hud and hud.Notify then hud:Notify("Ciclo de pickups finalizado (pasada completa)") end
+  updatePlatform()
+ end)
+end
+local function toggleMulti()
+ if multi then multiCancel=true if hud and hud.Notify then hud:Notify("Solicitud de cancelaciÃ³n recibida: la pasada terminarÃ¡ y luego se detendrÃ¡") end else multi=true; multiCancel=false if hud and hud.Notify then hud:Notify("Iniciando pasada de pickups (se recorrerÃ¡ completo)") end startMultiOnce() end updatePlatform() end
+local function findNode(path)
+ local node=workspace
+ for seg in string.gmatch(path,"[^%.]+") do
+  if node then node=node:FindFirstChild(seg) else break end
+ end
+ return node
+end
+local function gatherStickers()
+ local out={}
+ for _,p in ipairs(stickerPaths) do local node=findNode(p) if node then local t=node:FindFirstChild("Touch") if t then table.insert(out,t) end end end
+ return out
+end
+local function startStickersOnce()
+ spawn(function()
+  local targets=gatherStickers()
+  if #targets==0 then if not sNo and hud and hud.Notify then hud:Notify("No hay stickers disponibles"); sNo=true end sT=false if hud and hud.Notify then hud:Notify("Ciclo de stickers finalizado (sin targets)") end updatePlatform(); return else if sNo then sNo=false end end
+  for i=1,#targets do local target=targets[i]; local ok=false; local suc,er=pcall(function() ok=tpToInst(target) end)
+   if (not suc) or (suc and ok==false) then if not sErr and hud and hud.Notify then hud:Notify("Error o sticker no vÃ¡lido en Ã­ndice "..tostring(i)); sErr=true end else if hud and hud.Notify then hud:Notify("Teletransportado a sticker ("..tostring(i).."): "..tostring(target.Name or "Sticker")) end if sErr then sErr=false end end
+   wait(SI)
+  end
+  sT=false; sCancel=false
+  if hud and hud.Notify then hud:Notify("Ciclo de stickers finalizado (pasada completa)") end
+  updatePlatform()
+ end)
+end
+local function toggleStickers() if sT then sCancel=true if hud and hud.Notify then hud:Notify("Solicitud de cancelaciÃ³n recibida: la pasada terminarÃ¡ y luego se detendrÃ¡") end else sT=true; sCancel=false if hud and hud.Notify then hud:Notify("Iniciando pasada de stickers (se recorrerÃ¡ completo)") end startStickersOnce() end updatePlatform() end
+hud:AddButton("BUSCAR ðŸ”Ž",function() local names={"Default"}; toggleTeleporting(names[1]) end)
+hud:AddButton("CICLO PICKUPS ðŸ”",function() toggleMulti() end)
+hud:AddButton("CICLO STICKERS ðŸ”",function() toggleStickers() end)
+hud:AddButton("PLATAFORMA ðŸŸ¦",function()
+ if not pManual then pManual=true; pForce=false; pcall(createPlatform); if hud and hud.Notify then hud:Notify("Plataforma manual: ON") end else pManual=false; pForce=true; pcall(destroyPlatform); if hud and hud.Notify then hud:Notify("Plataforma manual: OFF (forzada)") end end
+ updatePlatform()
+end)
+hud:AddButton("GANAR ðŸ",function() doWinTeleport() end)
