@@ -5,9 +5,9 @@ local Players=game:GetService("Players")
 local LP=Players.LocalPlayer
 local t=false; local o=nil; local n=false; local er=false
 local I=0.1
-local multi=false; local multiCancel=false; local MI=0.4; local multiNo=false; local multiErr=false
+local multi=false; local multiCancel=false; local MI=2; local multiNo=false; local multiErr=false
 local multiSlots={"RevealPickupsSteveEagle","RevealPickupsSteveGecko","RevealPickupsSteveMantisShrimp","RevealPickupsSteveSnowLeopard"}
-local sT=false; local sCancel=false; local SI=0.4; local sNo=false; local sErr=false
+local sT=false; local sCancel=false; local SI=2; local sNo=false; local sErr=false
 local stickerPaths={ "Stickers.Cheetah.CheckpointNoSticker00A","ActiveStickers.d6001","Stickers.Cheetah.CheckpointNoSticker01A","Stickers.Cheetah.CheckpointNoSticker01B","ActiveStickers.d6002","Stickers.Cheetah.CheckpointNoSticker02A","ActiveStickers.d6003","ActiveStickers.d6004","ActiveStickers.d6005","ActiveStickers.d6006","Stickers.SnowLeopard.CheckpointNoSticker06A","Stickers.SnowLeopard.CheckpointNoSticker06B","ActiveStickers.d6007","Stickers.SnowLeopard.CheckpointNoSticker07A","ActiveStickers.d6008","Stickers.SnowLeopard.CheckpointNoSticker08A","ActiveStickers.d6009","Stickers.SnowLeopard.CheckpointNoSticker09A","ActiveStickers.d6010","ActiveStickers.d6011","ActiveStickers.d6012","Stickers.Eagle.CheckpointNoSticker12A","Stickers.Eagle.CheckpointNoSticker12A","Stickers.Eagle.CheckpointNoSticker12B","ActiveStickers.d6013","Stickers.Eagle.CheckpointNoSticker13A","Stickers.Eagle.CheckpointNoSticker14A","ActiveStickers.d6014","ActiveStickers.d6015" }
 local platform=nil; local pfConn=nil; local pManual=false; local pForce=false
 local P_SIZE=Vector3.new(6,1,6); local P_TR=0.35; local P_COL=Color3.fromRGB(30,144,255); local pYOffset=0.1
