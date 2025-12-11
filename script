@@ -1,5 +1,5 @@
-local R=loadstring(game:HttpGet("https://raw.githubusercontent.com/luis32405516-cmyk/SCRIPT-AM-LIBRARY/refs/heads/main/library"))()
-local hud=R:CreateWindow()
+local RainbowUI=loadstring(game:HttpGet("https://raw.githubusercontent.com/luis32405516-cmyk/SCRIPT-AM-LIBRARY/refs/heads/main/library"))()
+local hud=RainbowUI:CreateWindow()
 local RS=game:GetService("RunService")
 local Players=game:GetService("Players")
 local LP=Players.LocalPlayer
