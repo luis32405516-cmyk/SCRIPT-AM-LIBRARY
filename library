@@ -6,7 +6,7 @@ end
 function RainbowUI:CreateWindow(w,h)
  w,h=w or 230,h or 120
  local sg=Instance.new("ScreenGui")
- sg.Name="RainbowUI";sg.ResetOnSpawn=false;sg.IgnoreGuiInset=true
+ sg.Name="RainbowUI";sg.Draggable=true;sg.ResetOnSpawn=false;sg.IgnoreGuiInset=true
  if syn and syn.protect_gui then syn.protect_gui(sg) end
  sg.Parent=game:GetService("Players").LocalPlayer.PlayerGui
  local f=Instance.new("Frame")
